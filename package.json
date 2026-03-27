@@ -1,0 +1,25 @@
+{
+  "name": "re-agent",
+  "version": "1.0.0",
+  "description": "CLI tool to set up AI agent convention symlinks via lefthook",
+  "type": "module",
+  "bin": {
+    "re-agent": "./bin/re-agent.js"
+  },
+  "files": [
+    "bin/",
+    "templates/"
+  ],
+  "keywords": [
+    "ai",
+    "agents",
+    "lefthook",
+    "git-hooks",
+    "symlinks",
+    "claude",
+    "copilot",
+    "cursor",
+    "conventions"
+  ],
+  "license": "MIT"
+}
