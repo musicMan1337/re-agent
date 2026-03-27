@@ -50,8 +50,25 @@ if [ -f "AGENTS.md" ]; then
   make_symlink ".cursor/rules/main.mdc" "../../AGENTS.md"
 fi
 
-# GSD codebase (symlink .planning/codebase to .agent/codebase)
-if [ -d ".agent/codebase" ]; then
+# Bootstrap .agent/skills if missing
+if [ ! -d ".agent/skills" ]; then
+  mkdir -p ".agent/skills"
+  touch ".agent/skills/.gitkeep"
+fi
+
+# Codebase: consolidate .planning/codebase → .agent/codebase on demand
+if [ -d ".planning/codebase" ] && [ ! -L ".planning/codebase" ]; then
+  mkdir -p ".agent/codebase"
+  # Move contents into .agent/codebase, then remove the real directory
+  for item in .planning/codebase/*; do
+    [ -e "$item" ] || continue
+    name="$(basename "$item")"
+    [ ! -e ".agent/codebase/$name" ] && mv "$item" ".agent/codebase/"
+  done
+  rm -rf ".planning/codebase"
+  make_symlink ".planning/codebase" "../.agent/codebase"
+elif [ -d ".agent/codebase" ]; then
+  # Source exists — ensure symlink is in place
   make_symlink ".planning/codebase" "../.agent/codebase"
 fi
 
@@ -67,6 +84,7 @@ if [ -d ".agent/skills" ]; then
   for skill_dir in .agent/skills/*/; do
     [ -d "$skill_dir" ] || continue
     skill_name="$(basename "$skill_dir")"
+    [ "${skill_name#.}" != "$skill_name" ] && continue
     make_symlink ".claude/commands/$skill_name" "../../.agent/skills/$skill_name"
   done
 
@@ -74,6 +92,7 @@ if [ -d ".agent/skills" ]; then
   for skill_file in .agent/skills/*.md; do
     [ -f "$skill_file" ] || continue
     skill_name="$(basename "$skill_file")"
+    [ "${skill_name#.}" != "$skill_name" ] && continue
     make_symlink ".claude/commands/$skill_name" "../../.agent/skills/$skill_name"
   done
 fi

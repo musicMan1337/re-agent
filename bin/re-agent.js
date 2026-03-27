@@ -256,16 +256,14 @@ async function init() {
     skip('AGENTS.md already exists');
   }
 
-  for (const subdir of ['skills', 'codebase']) {
-    const dir = join(cwd, '.agent', subdir);
-    const gitkeep = join(dir, '.gitkeep');
-    if (!existsSync(dir)) {
-      mkdirSync(dir, { recursive: true });
-      writeFileSync(gitkeep, '');
-      ok(`Created .agent/${subdir}/`);
-    } else if (readdirSync(dir).length === 0) {
-      writeFileSync(gitkeep, '');
-    }
+  const skillsDir = join(cwd, '.agent', 'skills');
+  const skillsGitkeep = join(skillsDir, '.gitkeep');
+  if (!existsSync(skillsDir)) {
+    mkdirSync(skillsDir, { recursive: true });
+    writeFileSync(skillsGitkeep, '');
+    ok('Created .agent/skills/');
+  } else if (readdirSync(skillsDir).length === 0) {
+    writeFileSync(skillsGitkeep, '');
   }
 
   // ── 6. lefthook.yml ──────────────────────────────────────────────────────
