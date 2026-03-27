@@ -33,14 +33,16 @@ The symlinks are gitignored. Only `AGENTS.md` is committed. Every tool reads the
 
 ### Install
 
+The package is small and has no runtime dependencies — running it directly with npx is usually all you need:
+
 ```bash
-npx re-agent init
+npx @musicman1337/re-agent init
 ```
 
 Or install it as a dev dependency first:
 
 ```bash
-npm install -D re-agent
+npm install -D @musicman1337/re-agent
 npx re-agent init
 ```
 

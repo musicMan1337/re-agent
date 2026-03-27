@@ -76,7 +76,7 @@ const AGENTS_TEMPLATE = `# Agent Instructions
 
 > **This file is the single source of truth for AI coding agent configuration.**
 >
-> [re-agent](https://npmjs.com/package/re-agent) symlinks it to each tool's expected location:
+> [re-agent](https://npmjs.com/package/@musicman1337/re-agent) symlinks it to each tool's expected location:
 >
 > | Tool | Symlink |
 > |------|---------|
