@@ -28,15 +28,17 @@ make_symlink() {
   ln -s "$target" "$link"
 }
 
-# CLAUDE.md symlinks (one per AGENTS.md found in repo)
+# CLAUDE.md symlink (root)
+if [ -f "AGENTS.md" ]; then
+  make_symlink "CLAUDE.md" "AGENTS.md"
+fi
+
+# CLAUDE.md symlinks (subdirectories — tracked files only)
 while IFS= read -r agents_file; do
   dir="$(dirname "$agents_file")"
-  if [ "$dir" = "." ]; then
-    make_symlink "CLAUDE.md" "AGENTS.md"
-  else
-    make_symlink "$dir/CLAUDE.md" "AGENTS.md"
-  fi
-done < <(git ls-files | grep "AGENTS\.md$" || true)
+  [ "$dir" = "." ] && continue
+  make_symlink "$dir/CLAUDE.md" "AGENTS.md"
+done < <(git ls-files -- '**/AGENTS.md' || true)
 
 # GitHub Copilot
 if [ -f "AGENTS.md" ]; then
@@ -65,6 +67,13 @@ if [ -d ".agent/skills" ]; then
   for skill_dir in .agent/skills/*/; do
     [ -d "$skill_dir" ] || continue
     skill_name="$(basename "$skill_dir")"
+    make_symlink ".claude/commands/$skill_name" "../../.agent/skills/$skill_name"
+  done
+
+  # Individual skill files
+  for skill_file in .agent/skills/*.md; do
+    [ -f "$skill_file" ] || continue
+    skill_name="$(basename "$skill_file")"
     make_symlink ".claude/commands/$skill_name" "../../.agent/skills/$skill_name"
   done
 fi
