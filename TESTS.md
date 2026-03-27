@@ -374,3 +374,62 @@ node <repo>/bin/re-agent.js init 2>&1 | grep -q "pnpm install"
 | #    | Check         | Command                             |
 | ---- | ------------- | ----------------------------------- |
 | 17.1 | pnpm detected | _(check output for "pnpm install")_ |
+
+---
+
+## Scenario 18: lefthook.yml output config — fresh repo
+
+Fresh repo gets full template with output config.
+
+```bash
+node <repo>/bin/re-agent.js init
+```
+
+### Assertions
+
+| #    | Check                                | Command                                  |
+| ---- | ------------------------------------ | ---------------------------------------- |
+| 18.1 | lefthook.yml has output section      | `grep -q "^output:" lefthook.yml`        |
+| 18.2 | output includes failure              | `grep -q "failure" lefthook.yml`         |
+| 18.3 | output includes execution_out        | `grep -q "execution_out" lefthook.yml`   |
+| 18.4 | post-checkout hook still present     | `grep -q "setup-agent-symlinks" lefthook.yml` |
+
+---
+
+## Scenario 19: lefthook.yml output config — existing file without output
+
+Existing lefthook.yml with no output section. Init should prepend output config and append hook.
+
+```bash
+printf "pre-commit:\n  commands:\n    lint:\n      run: npm run lint\n" > lefthook.yml
+node <repo>/bin/re-agent.js init
+```
+
+### Assertions
+
+| #    | Check                                    | Command                                       |
+| ---- | ---------------------------------------- | --------------------------------------------- |
+| 19.1 | output config prepended                  | `head -1 lefthook.yml | grep -q "output:"`    |
+| 19.2 | existing pre-commit preserved            | `grep -q "pre-commit:" lefthook.yml`           |
+| 19.3 | existing lint command preserved          | `grep -q "npm run lint" lefthook.yml`          |
+| 19.4 | agent-symlinks hook appended             | `grep -q "setup-agent-symlinks" lefthook.yml`  |
+
+---
+
+## Scenario 20: lefthook.yml output config — existing file with output
+
+Existing lefthook.yml already has an output section. Init should NOT modify it.
+
+```bash
+printf "output:\n  - meta\n  - summary\n\npre-commit:\n  commands:\n    lint:\n      run: npm run lint\n" > lefthook.yml
+node <repo>/bin/re-agent.js init
+```
+
+### Assertions
+
+| #    | Check                                  | Command                                      |
+| ---- | -------------------------------------- | -------------------------------------------- |
+| 20.1 | output config unchanged (still meta)   | `grep -q "meta" lefthook.yml`                |
+| 20.2 | output config unchanged (still summary)| `grep -q "summary" lefthook.yml`             |
+| 20.3 | no duplicate output section            | `[ "$(grep -c "^output:" lefthook.yml)" -eq 1 ]` |
+| 20.4 | agent-symlinks hook appended           | `grep -q "setup-agent-symlinks" lefthook.yml` |

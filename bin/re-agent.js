@@ -270,21 +270,30 @@ async function init() {
 
   const lefthookPath = join(cwd, 'lefthook.yml');
   const lefthookTemplate = readFileSync(join(TEMPLATES_DIR, 'lefthook.yml'), 'utf8');
+  const hookBlock = lefthookTemplate.replace(/^output:[\s\S]*?\n\n/, '');
 
   if (!existsSync(lefthookPath)) {
     writeFileSync(lefthookPath, lefthookTemplate);
     ok('Created lefthook.yml');
   } else {
-    const existing = readFileSync(lefthookPath, 'utf8');
+    let existing = readFileSync(lefthookPath, 'utf8');
+
+    // Add output config if not already present
+    if (!existing.includes('output:')) {
+      existing = `output:\n  - failure\n  - execution_out\n\n${existing}`;
+      writeFileSync(lefthookPath, existing);
+      ok('Added output config to lefthook.yml');
+    }
+
     if (existing.includes('setup-agent-symlinks.sh')) {
-      skip('lefthook.yml already configured');
+      skip('lefthook.yml already has agent-symlinks hook');
     } else if (existing.includes('post-checkout:')) {
       warn('lefthook.yml has a post-checkout section — add this manually:');
       console.log(dim('    commands:'));
       console.log(dim('      agent-symlinks:'));
       console.log(dim('        run: bash scripts/setup-agent-symlinks.sh'));
     } else {
-      writeFileSync(lefthookPath, existing.trimEnd() + '\n\n' + lefthookTemplate);
+      writeFileSync(lefthookPath, existing.trimEnd() + '\n\n' + hookBlock);
       ok('Appended agent-symlinks hook to lefthook.yml');
     }
   }
