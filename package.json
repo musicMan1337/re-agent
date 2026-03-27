@@ -1,6 +1,6 @@
 {
   "name": "@musicman1337/re-agent",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "CLI tool to set up AI agent convention symlinks via lefthook",
   "type": "module",
   "bin": {
