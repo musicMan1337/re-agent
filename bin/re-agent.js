@@ -257,13 +257,10 @@ async function init() {
   }
 
   const skillsDir = join(cwd, '.agent', 'skills');
-  const skillsGitkeep = join(skillsDir, '.gitkeep');
   if (!existsSync(skillsDir)) {
     mkdirSync(skillsDir, { recursive: true });
-    writeFileSync(skillsGitkeep, '');
+    writeFileSync(join(skillsDir, '.gitkeep'), '');
     ok('Created .agent/skills/');
-  } else if (readdirSync(skillsDir).length === 0) {
-    writeFileSync(skillsGitkeep, '');
   }
 
   // ── 6. lefthook.yml ──────────────────────────────────────────────────────

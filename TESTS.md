@@ -433,3 +433,30 @@ node <repo>/bin/re-agent.js init
 | 20.2 | output config unchanged (still summary)| `grep -q "summary" lefthook.yml`             |
 | 20.3 | no duplicate output section            | `[ "$(grep -c "^output:" lefthook.yml)" -eq 1 ]` |
 | 20.4 | agent-symlinks hook appended           | `grep -q "setup-agent-symlinks" lefthook.yml` |
+
+---
+
+## Scenario 21: .gitkeep not re-added when directory exists
+
+After init creates .agent/skills/ with .gitkeep, adding real files and removing .gitkeep should be permanent — neither init nor the hook should re-add it.
+
+```bash
+node <repo>/bin/re-agent.js init
+# Add a real skill and remove .gitkeep
+mkdir -p .agent/skills/my-cmd
+echo "# cmd" > .agent/skills/my-cmd/prompt.md
+rm .agent/skills/.gitkeep
+# Re-run init
+node <repo>/bin/re-agent.js init
+# Re-run hook
+bash scripts/setup-agent-symlinks.sh
+```
+
+### Assertions
+
+| #    | Check                                        | Command                                |
+| ---- | -------------------------------------------- | -------------------------------------- |
+| 21.1 | .gitkeep not re-added by init                | `[ ! -f .agent/skills/.gitkeep ]`      |
+| 21.2 | .gitkeep not re-added by hook                | `[ ! -f .agent/skills/.gitkeep ]`      |
+| 21.3 | skill directory still intact                 | `[ -d .agent/skills/my-cmd ]`          |
+| 21.4 | .agent/codebase/.gitkeep also not created    | `[ ! -f .agent/codebase/.gitkeep ]`    |
